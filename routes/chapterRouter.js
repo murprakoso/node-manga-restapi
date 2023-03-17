@@ -1,28 +1,26 @@
 const router = require('express').Router();
 const cheerio = require('cheerio');
-const { default: axios } = require('axios');
-const { CookieJar } = require('tough-cookie');
-const { wrapper } = require('axios-cookiejar-support');
-
-const jar = new CookieJar();
-const client = wrapper(axios.create({ jar }));
+const response = require('../response');
+const client = require('../axios');
+const { baseUrl } = require('../constant');
 
 //CHAPTER
 router.get('/:slug', async (req, res) => {
   const slug = req.params.slug;
 
   try {
-    const response = await client.get(`https://komiku.id/ch/${slug}`);
+    const result = await client.get(`${baseUrl}/ch/${slug}`);
 
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(result.data);
     const content = $('.content');
 
-    let chapter_image = [];
+    let img_chapters = [];
+    let pagination = [];
 
     const chapterArea = content.find('#Baca_Komik > img');
 
     chapterArea.each((i, el) => {
-      chapter_image.push({
+      img_chapters.push({
         img_link: $(el).attr('src'),
         img_number: i + 1,
       });
@@ -36,16 +34,27 @@ router.get('/:slug', async (req, res) => {
       .trim()
       .split('\n');
 
-    let obj = {
+    const chapterNav = $('.nxpr > a');
+
+    chapterNav.each((i, el) => {
+      pagination.push($(el).attr('href').replace('/ch/', ''));
+    });
+
+    let data = {
       title: title[0].trim(),
-      title_sub: title[1].trim(),
+      slug: slug,
       pages: chapterArea.length,
-      chapter_image: chapter_image,
+      img_chapters: img_chapters,
+      pagination: {
+        prev_ch: pagination[0],
+        next_ch: pagination[1],
+        current: $('.nxpr > span').text(),
+      },
     };
 
-    res.status(200).send(obj);
+    response(res, 200, true, '', data);
   } catch (error) {
-    res.status(500).json(error);
+    response(res, 500, false, 'Failed to load chapters.');
   }
 });
 
