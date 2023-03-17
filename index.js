@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors');
+const chapterRouter = require('./routes/chapterRouter');
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 // router
+app.use('/api/chapter', chapterRouter);
 
 app.get('/', (req, res) => {
   res.status(200).json({
