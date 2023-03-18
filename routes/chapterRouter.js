@@ -14,15 +14,15 @@ router.get('/:slug', async (req, res) => {
     const $ = cheerio.load(result.data);
     const content = $('.content');
 
-    let img_chapters = [];
+    let chapters = [];
     let pagination = [];
 
     const chapterArea = content.find('#Baca_Komik > img');
 
     chapterArea.each((i, el) => {
-      img_chapters.push({
-        img_link: $(el).attr('src'),
-        img_number: i + 1,
+      chapters.push({
+        link: $(el).attr('src'),
+        number: i + 1,
       });
     });
 
@@ -42,19 +42,19 @@ router.get('/:slug', async (req, res) => {
 
     let data = {
       title: title[0].trim(),
-      slug: slug,
+      link: slug,
       pages: chapterArea.length,
-      img_chapters: img_chapters,
+      chapters: chapters,
       pagination: {
-        prev_ch: pagination[0],
-        next_ch: pagination[1],
+        prev_endpoint: pagination[0],
+        next_endpoint: pagination[1],
         current: $('.nxpr > span').text(),
       },
     };
 
     response(res, 200, true, '', data);
   } catch (error) {
-    response(res, 500, false, 'Failed to load chapters.');
+    response(res, 500, false, 'Gagal memuat chapter.');
   }
 });
 
