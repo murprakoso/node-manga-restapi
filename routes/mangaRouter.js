@@ -84,10 +84,12 @@ router.get(['/ref/:type', '/ref/:type/:number'], async (req, res) => {
     ? `${baseUrl}/manga/?orderby=&category_name=${type}&genre=&genre2=&status=`
     : `${baseUrl}/manga/page/${pageNumber}/?orderby&category_name=${type}&genre&genre2&status`;
 
+  const strUrlReplace = url.replace(baseUrl, '').split('?')[1];
+
   try {
     const result = await client.get(url);
 
-    let data = primaryScrapper(result);
+    let data = primaryScrapper(result, strUrlReplace);
 
     response(res, 200, true, '', data);
   } catch (error) {
@@ -191,10 +193,12 @@ router.get(['/search', '/search/:number'], async (req, res) => {
     ? `${baseUrl2}/cari/?post_type=manga&s=${keyword}`
     : `${baseUrl2}/page/${pageNumber}/?post_type=manga&s=${keyword}`;
 
+  const strUrlReplace = url.replace(baseUrl, '').split('?')[1];
+
   try {
     const result = await client.get(`${url}`);
 
-    let data = primaryScrapper(result);
+    let data = primaryScrapper(result, strUrlReplace);
 
     response(res, 200, true, '', data);
   } catch (error) {

@@ -1,6 +1,7 @@
 const cheerio = require('cheerio');
+const { baseUrl } = require('./constant');
 
-const primaryScrapper = (web) => {
+const primaryScrapper = (web, strUrlReplace = '') => {
   const $ = cheerio.load(web.data);
 
   let mangas = [];
@@ -26,7 +27,8 @@ const primaryScrapper = (web) => {
           endpoint: $(el)
             .find('.kan > div:nth-child(4) > a')
             .attr('href')
-            .replace('/ch/', ''),
+            .replace('ch/', '')
+            .replace(baseUrl, ''),
         },
         lastest: {
           title: $(el)
@@ -35,7 +37,8 @@ const primaryScrapper = (web) => {
           endpoint: $(el)
             .find('.kan > div:nth-child(5) > a')
             .attr('href')
-            .replace('/ch/', ''),
+            .replace('ch/', '')
+            .replace(baseUrl, ''),
         },
       },
     });
@@ -49,8 +52,13 @@ const primaryScrapper = (web) => {
         title: $(el).text().trim(),
         endpoint: $(el)
           .attr('href')
+          .replace(strUrlReplace, '')
           .replace('genre', 'genres')
-          .replace('page/', ''),
+          //   .replace('page/', '')
+          .replace(/page\/|\/\?|\/manga\//gi, '')
+          .replace('?', 1)
+          .replace('/', '')
+          .trim(),
       });
     });
 
